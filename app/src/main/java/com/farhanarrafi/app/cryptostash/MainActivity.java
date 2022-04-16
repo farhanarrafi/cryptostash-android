@@ -4,8 +4,6 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
@@ -22,9 +20,11 @@ import com.farhanarrafi.app.cryptostash.adapter.EthereumAdapter;
 import com.farhanarrafi.app.cryptostash.adapter.EthereumJsonAdapter;
 import com.farhanarrafi.app.cryptostash.databinding.ActivityMainBinding;
 import com.farhanarrafi.app.cryptostash.events.EthereumItemsLoadEvent;
+import com.farhanarrafi.app.cryptostash.listener.OnItemClickListener;
 import com.farhanarrafi.app.cryptostash.model.Ethereum;
 import com.farhanarrafi.app.cryptostash.utils.CSLog;
 import com.farhanarrafi.app.cryptostash.utils.DownloadData;
+import com.farhanarrafi.app.cryptostash.utils.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -64,10 +64,14 @@ public class MainActivity extends AppCompatActivity {
         binding.fabRefreshData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Requesting updates", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                checkRequiredPermissionsAndDownloadData();
-                showProgressBar();
+                if(Utility.isNetworkAvailable(getApplicationContext())) {
+                    Snackbar.make(view, "Requesting updates", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    checkRequiredPermissionsAndDownloadData();
+                    showProgressBar();
+                } else {
+                    Toast.makeText(getApplicationContext(), "This application requires internet. Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         ethereum.setLastPrice("$487659.13");
         ethereum.setPriceChange("$24.11");
         ethereumArrayList.add(ethereum);
-        ethereumAdapter = new EthereumAdapter(ethereumArrayList);
+        ethereumAdapter = new EthereumAdapter(ethereumArrayList, null);
         ethereumRecyclerView.setAdapter(ethereumAdapter);
     }
 
@@ -108,8 +112,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showProgressBar();
-        checkRequiredPermissionsAndDownloadData();
+        if(Utility.isNetworkAvailable(this)) {
+            showProgressBar();
+            checkRequiredPermissionsAndDownloadData();
+        } else {
+            Toast.makeText(this, "This application requires internet. Please check your internet connection.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -173,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode == INTERNET_REQUEST_CODE) {
-
+            // not needed for internet access
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
@@ -194,7 +202,15 @@ public class MainActivity extends AppCompatActivity {
             try {
                 List<Ethereum> ethereumList = adapter.fromJson(response);
                 CSLog.d(TAG, "ethereumList count: " + ethereumList.size());
-                ethereumAdapter = new EthereumAdapter(ethereumList);
+                ethereumAdapter = new EthereumAdapter(ethereumList, new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Ethereum ethereum) {
+                        binding.highPriceValue.setText(ethereum.getHighPrice());
+                        binding.lowPriceValue.setText(ethereum.getLowPrice());
+                        binding.lastPriceValue.setText(ethereum.getLastPrice());
+                        binding.openPriceValue.setText(ethereum.getOpenPrice());
+                    }
+                });
                 ethereumRecyclerView.setAdapter(ethereumAdapter);
                 ethereumAdapter.notifyDataSetChanged();
                 hideProgressBar();

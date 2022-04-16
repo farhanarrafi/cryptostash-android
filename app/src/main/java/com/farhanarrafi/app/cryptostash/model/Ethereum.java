@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import androidx.databinding.BindingAdapter;
 
 
+import com.farhanarrafi.app.cryptostash.utils.CSLog;
 import com.squareup.picasso.Picasso;
 
 
@@ -19,9 +20,6 @@ public final class Ethereum {
     private String shortName;
     private String FullName;
     private String priceChange;
-
-    private static final String symbolUrlPrefix = "https://github.com/spothq/cryptocurrency-icons/blob/master/32/color/";
-    private static final String symbolUrlPostfix = ".png";
     private String symbolUrl;
 
     public Ethereum() {
@@ -95,11 +93,11 @@ public final class Ethereum {
     }
 
     public String getSymbolUrl() {
-        return symbolUrl;
+        return this.symbolUrl;
     }
 
     public void setSymbolUrl(String symbolUrl) {
-        this.symbolUrl = symbolUrlPrefix + shortName + symbolUrlPostfix;
+        this.symbolUrl = symbolUrl;
     }
 
 //    @BindingAdapter({"imageUrl"})
@@ -114,8 +112,9 @@ public final class Ethereum {
 //        Picasso.get().load(url).error(error).into(view);
 //    }
 
-    @BindingAdapter("image_Url")
-    public void setImageUrl(ImageView view, String image_Url) {
+    @BindingAdapter("app:image_url")
+    public static void imageUrl(ImageView view, String image_Url) {
+        CSLog.d("Ethereum image_Url " + image_Url);
         Picasso.get().load(image_Url).into(view);
     }
 }

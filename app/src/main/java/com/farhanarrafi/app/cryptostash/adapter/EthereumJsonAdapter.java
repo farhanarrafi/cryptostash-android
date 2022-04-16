@@ -23,6 +23,9 @@ public class EthereumJsonAdapter {
 
     private Map<String,String> cryptoCurrencyNameMap;
 
+    private static final String symbolUrlPrefix = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/";
+    private static final String symbolUrlPostfix = ".png";
+
     public EthereumJsonAdapter(Context context) {
         loadCryptoCurrencyNameMap(context);
     }
@@ -39,6 +42,7 @@ public class EthereumJsonAdapter {
         ethereum.setOpenPrice(ethereumJson.getOpenPrice());
         ethereum.setHighPrice(ethereumJson.getHighPrice());
         ethereum.setLowPrice(ethereumJson.getLowPrice());
+        ethereum.setSymbolUrl(symbolUrlPrefix + ethereumJson.getBaseAsset() + symbolUrlPostfix);
         return ethereum;
     }
 

@@ -60,7 +60,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginStart="20dp"
             android:layout_marginBottom="20dp"
-            android:src="@{ethereum.symbolUrl}"
+            app:image_url="@{ethereum.symbolUrl}"
             tools:src="@drawable/btc" />
 
         <!--  app:imageUrl="@{ethereum.imageUrl}" app:error="@{@drawable/btc}"-->

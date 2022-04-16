@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.farhanarrafi.app.cryptostash.BR;
 import com.farhanarrafi.app.cryptostash.R;
+import com.farhanarrafi.app.cryptostash.listener.OnItemClickListener;
 import com.farhanarrafi.app.cryptostash.model.Ethereum;
 
 import java.util.ArrayList;
@@ -19,12 +20,14 @@ import java.util.List;
 public class EthereumAdapter extends RecyclerView.Adapter<EthereumAdapter.EthereumListViewHolder> {
 
     private List<Ethereum> ethereumList;
+    private OnItemClickListener listener;
 
     public EthereumAdapter() {
     }
 
-    public EthereumAdapter(List<Ethereum> ethereumList) {
+    public EthereumAdapter(List<Ethereum> ethereumList, OnItemClickListener listener) {
         this.ethereumList = ethereumList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -39,12 +42,7 @@ public class EthereumAdapter extends RecyclerView.Adapter<EthereumAdapter.Ethere
     @Override
     public void onBindViewHolder(@NonNull EthereumListViewHolder holder, int position) {
         final Ethereum ethereum = ethereumList.get(position);
-        holder.bind(ethereum);
-    }
-
-    public void updateData(ArrayList<Ethereum> newList) {
-        this.ethereumList = newList;
-        notifyDataSetChanged();
+        holder.bind(ethereum, listener);
     }
 
     @Override
@@ -61,9 +59,10 @@ public class EthereumAdapter extends RecyclerView.Adapter<EthereumAdapter.Ethere
             ethereumItemDataBinding = binding;
         }
 
-        public void bind(Ethereum ethereum) {
+        public void bind(Ethereum ethereum, OnItemClickListener listener) {
             ethereumItemDataBinding.setVariable(BR.ethereum,ethereum);
             ethereumItemDataBinding.executePendingBindings();
+            ethereumItemDataBinding.getRoot().setOnClickListener(v -> listener.onItemClick(ethereum));
         }
     }
 }
