@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -13,28 +14,35 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.BindingMethod;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.farhanarrafi.app.cryptostash.adapter.EthereumAdapter;
 import com.farhanarrafi.app.cryptostash.adapter.EthereumJsonAdapter;
 import com.farhanarrafi.app.cryptostash.databinding.ActivityMainBinding;
+import com.farhanarrafi.app.cryptostash.events.EthereumDetailsLoadEvent;
 import com.farhanarrafi.app.cryptostash.events.EthereumItemsLoadEvent;
 import com.farhanarrafi.app.cryptostash.listener.OnItemClickListener;
 import com.farhanarrafi.app.cryptostash.model.Ethereum;
+import com.farhanarrafi.app.cryptostash.model.EthereumJson;
 import com.farhanarrafi.app.cryptostash.utils.CSLog;
+import com.farhanarrafi.app.cryptostash.utils.Constants;
 import com.farhanarrafi.app.cryptostash.utils.DownloadData;
 import com.farhanarrafi.app.cryptostash.utils.Utility;
 import com.google.android.material.snackbar.Snackbar;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private final int INTERNET_REQUEST_CODE = 10001;
+
+    private DownloadData downloadData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if(downloadData != null) {
+            downloadData.cleanUp();
+        }
         super.onDestroy();
     }
 
@@ -131,7 +144,9 @@ public class MainActivity extends AppCompatActivity {
                 this, Manifest.permission.INTERNET) ==
                 PackageManager.PERMISSION_GRANTED) {
             // You can use the API that requires the permission.
-            DownloadData downloadData = new DownloadData();
+            if(downloadData == null) {
+                downloadData = new DownloadData();
+            }
             try {
                 downloadData.downloadEthereumJSON("https://api.wazirx.com/sapi/v1/tickers/24hr");
             } catch (Exception e) {
@@ -188,6 +203,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Called from {@link DownloadData#downloadEthereumJSON(String)}
+     * @param ethereumItemsLoadEvent event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEthereumItemsLoadEvent(EthereumItemsLoadEvent ethereumItemsLoadEvent) {
         if(ethereumItemsLoadEvent.getError().isEmpty()) {
@@ -205,14 +224,24 @@ public class MainActivity extends AppCompatActivity {
                 ethereumAdapter = new EthereumAdapter(ethereumList, new OnItemClickListener() {
                     @Override
                     public void onItemClick(Ethereum ethereum) {
-                        binding.highPriceValue.setText(ethereum.getHighPrice());
-                        binding.lowPriceValue.setText(ethereum.getLowPrice());
-                        binding.lastPriceValue.setText(ethereum.getLastPrice());
-                        binding.openPriceValue.setText(ethereum.getOpenPrice());
+                        //updateDetailsView(ethereum);
+                        if(downloadData == null) {
+                            downloadData = new DownloadData();
+                        }
+                        try {
+                            String urlString = "https://api.wazirx.com/sapi/v1/ticker/24hr?symbol=" + ethereum.getSymbol();
+                            CSLog.d(TAG, "onEthereumItemsLoadEvent() urlString: " + urlString);
+                            downloadData.downloadEthereumDetailsJSON(urlString);
+                        } catch (Exception e) {
+                            CSLog.e(TAG, e.getMessage());
+                            hideProgressBar();
+                            Toast.makeText(getApplicationContext(), "Could not load data.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 ethereumRecyclerView.setAdapter(ethereumAdapter);
                 ethereumAdapter.notifyDataSetChanged();
+                updateDetailsView(ethereumList.get(0));
                 hideProgressBar();
             } catch (IOException e) {
                 CSLog.e(e.getMessage());
@@ -220,6 +249,47 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, ethereumItemsLoadEvent.getError(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Called from {@link DownloadData#downloadEthereumDetailsJSON(String)}
+     * @param ethereumDetailsLoadEvent event
+     */
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEthereumDetailsLoadEvent(EthereumDetailsLoadEvent ethereumDetailsLoadEvent) {
+        if(ethereumDetailsLoadEvent.getError().isEmpty()) {
+            String response = ethereumDetailsLoadEvent.getJson();
+            CSLog.d(TAG, "onEthereumDetailsLoadEvent() response: " + response);
+            try {
+                Moshi moshi = new Moshi.Builder().build();
+                JsonAdapter<EthereumJson> adapter = moshi.adapter(EthereumJson.class);
+                EthereumJson ethereumJson = adapter.fromJson(response);
+                if(ethereumJson != null) {
+                    CSLog.d(TAG, "ethereum details: " + ethereumJson.toString());
+                    updateDetailsView(ethereumJson);
+                }
+            } catch (IOException e) {
+                CSLog.e(e.getMessage());
+            }
+        } else {
+            Toast.makeText(this, ethereumDetailsLoadEvent.getError(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateDetailsView(Ethereum ethereum) {
+        binding.highPriceValue.setText(ethereum.getHighPrice());
+        binding.lowPriceValue.setText(ethereum.getLowPrice());
+        binding.lastPriceValue.setText(ethereum.getLastPrice());
+        binding.openPriceValue.setText(ethereum.getOpenPrice());
+        Picasso.get().load(Constants.ICON_URL_PREFIX + ethereum.getShortName() + Constants.ICON_URL_POSTFIX).into(binding.ethereumDetailsIcon);
+    }
+
+    private void updateDetailsView(EthereumJson ethereumJson) {
+        binding.highPriceValue.setText(ethereumJson.getHighPrice());
+        binding.lowPriceValue.setText(ethereumJson.getLowPrice());
+        binding.lastPriceValue.setText(ethereumJson.getLastPrice());
+        binding.openPriceValue.setText(ethereumJson.getOpenPrice());
+        Picasso.get().load(Constants.ICON_URL_PREFIX + ethereumJson.getBaseAsset() + Constants.ICON_URL_POSTFIX).into(binding.ethereumDetailsIcon);
     }
 
     /**
@@ -242,6 +312,4 @@ public class MainActivity extends AppCompatActivity {
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
-
-
 }

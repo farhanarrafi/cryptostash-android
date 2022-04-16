@@ -21,19 +21,9 @@ public final class Ethereum {
     private String FullName;
     private String priceChange;
     private String symbolUrl;
+    private String symbol;
 
     public Ethereum() {
-    }
-
-    public Ethereum(String shortName, String fullName, String priceChange, String openPrice, String lowPrice, String highPrice, String lastPrice, String symbolUrl) {
-        this.shortName = shortName;
-        FullName = fullName;
-        this.priceChange = priceChange;
-        this.openPrice = openPrice;
-        this.lowPrice = lowPrice;
-        this.highPrice = highPrice;
-        this.lastPrice = lastPrice;
-        this.symbolUrl = symbolUrl;
     }
 
     public String getShortName() {
@@ -100,7 +90,15 @@ public final class Ethereum {
         this.symbolUrl = symbolUrl;
     }
 
-//    @BindingAdapter({"imageUrl"})
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
+    //    @BindingAdapter({"imageUrl"})
 //    public void setImageUrl(ImageView view, String poserPath){
 //        Picasso.get().load("http://image.tmdb.org/t/p/w185"+
 //                poserPath).into(view);
@@ -116,5 +114,19 @@ public final class Ethereum {
     public static void imageUrl(ImageView view, String image_Url) {
         CSLog.d("Ethereum image_Url " + image_Url);
         Picasso.get().load(image_Url).into(view);
+    }
+
+    @Override
+    public String toString() {
+        return "Ethereum{" +
+                "openPrice='" + openPrice + '\'' +
+                ", lowPrice='" + lowPrice + '\'' +
+                ", highPrice='" + highPrice + '\'' +
+                ", lastPrice='" + lastPrice + '\'' +
+                ", shortName='" + shortName + '\'' +
+                ", FullName='" + FullName + '\'' +
+                ", priceChange='" + priceChange + '\'' +
+                ", symbolUrl='" + symbolUrl + '\'' +
+                '}';
     }
 }

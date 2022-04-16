@@ -5,6 +5,7 @@ import android.content.res.AssetManager;
 
 import com.farhanarrafi.app.cryptostash.model.Ethereum;
 import com.farhanarrafi.app.cryptostash.model.EthereumJson;
+import com.farhanarrafi.app.cryptostash.utils.Constants;
 import com.squareup.moshi.FromJson;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -23,9 +24,6 @@ public class EthereumJsonAdapter {
 
     private Map<String,String> cryptoCurrencyNameMap;
 
-    private static final String symbolUrlPrefix = "https://raw.githubusercontent.com/spothq/cryptocurrency-icons/master/32/color/";
-    private static final String symbolUrlPostfix = ".png";
-
     public EthereumJsonAdapter(Context context) {
         loadCryptoCurrencyNameMap(context);
     }
@@ -34,6 +32,7 @@ public class EthereumJsonAdapter {
     Ethereum eventFromJson(EthereumJson ethereumJson) {
         Ethereum ethereum = new Ethereum();
         ethereum.setShortName(ethereumJson.getBaseAsset());
+        ethereum.setSymbol(ethereumJson.getSymbol());
         if(cryptoCurrencyNameMap != null) {
             ethereum.setFullName(cryptoCurrencyNameMap.get(ethereumJson.getBaseAsset()));
         }
@@ -42,7 +41,7 @@ public class EthereumJsonAdapter {
         ethereum.setOpenPrice(ethereumJson.getOpenPrice());
         ethereum.setHighPrice(ethereumJson.getHighPrice());
         ethereum.setLowPrice(ethereumJson.getLowPrice());
-        ethereum.setSymbolUrl(symbolUrlPrefix + ethereumJson.getBaseAsset() + symbolUrlPostfix);
+        ethereum.setSymbolUrl(Constants.ICON_URL_PREFIX + ethereumJson.getBaseAsset() + Constants.ICON_URL_POSTFIX);
         return ethereum;
     }
 

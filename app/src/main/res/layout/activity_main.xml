@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-
     <data>
-
         <import type="android.view.View" />
 
         <variable
@@ -46,24 +44,35 @@
 
         <RelativeLayout
             android:id="@+id/ethereum_details_container"
-            android:layout_below="@+id/ethereum_layout_include_container"
             android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_below="@+id/ethereum_layout_include_container"
             android:layout_marginTop="20dp"
-            android:background="#E8F5E9"
-            android:layout_height="400dp">
+            android:background="#E8F5E9">
+
+            <ImageView
+                android:id="@+id/ethereum_details_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                app:image_url="@{ethereum.symbolUrl}"
+                tools:src="@drawable/btc" />
 
             <TextView
                 android:id="@+id/last_price_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-                android:layout_alignParentStart="true"
                 android:background="@drawable/rounded_corner_background"
-                android:textStyle="bold"
+                android:text="Last Price"
                 android:textSize="20sp"
-                android:text="Last Price"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/last_price_value"
@@ -83,123 +92,116 @@
                 android:id="@+id/overview_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/last_price_value"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-                android:layout_below="@id/last_price_value"
                 android:background="@drawable/rounded_corner_background"
-                android:textStyle="bold"
+                android:text="Overview"
                 android:textSize="20sp"
-                android:text="Overview"/>
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/price_title_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="3"
                 android:layout_below="@id/overview_title"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="3">
 
 
                 <TextView
                     android:id="@+id/open_price_title"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:text="Open Price"
                     android:textAlignment="center"
-                    android:textStyle="bold"
                     android:textSize="18sp"
-                    android:text="Open Price"/>
+                    android:textStyle="bold" />
 
 
                 <TextView
                     android:id="@+id/high_price_title"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:text="Day High"
                     android:textAlignment="center"
-                    android:textStyle="bold"
                     android:textSize="18sp"
-                    android:text="Day High"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/low_price_title"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:text="Day Low"
                     android:textAlignment="center"
-                    android:textStyle="bold"
                     android:textSize="18sp"
-                    android:text="Day Low"/>
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:weightSum="3"
                 android:layout_below="@id/price_title_layout"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="3">
 
                 <TextView
                     android:id="@+id/open_price_value"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:layout_weight="1"
                     android:text="@{ethereum.openPrice}"
-                    tools:text="704999.0"/>
+                    android:textAlignment="center"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    tools:text="704999.0" />
 
                 <TextView
                     android:id="@+id/high_price_value"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:layout_weight="1"
                     android:text="@{ethereum.highPrice}"
-                    tools:text="730001.0"/>
+                    android:textAlignment="center"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    tools:text="730001.0" />
 
                 <TextView
                     android:id="@+id/low_price_value"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:layout_weight="1"
                     android:text="@{ethereum.lowPrice}"
-                    tools:text="702603.0"/>
+                    android:textAlignment="center"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    tools:text="702603.0" />
 
             </LinearLayout>
-
-
-
-
-
-
-
 
 
         </RelativeLayout>
